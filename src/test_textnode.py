@@ -171,14 +171,39 @@ class TestSplitNodes(unittest.TestCase):
             new_nodes2
         )
     
-    def test_split_nodes_delimiter_all_bold(self):
+    def test_split_nodes_delimiter_bold_node(self):
         node = TextNode("All bold text", TextType.BOLD)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertListEqual([TextNode("All bold text", TextType.BOLD)], new_nodes)
-
+    
+    def test_split_nodes_delimiter_multiple_bold_nodes(self):
+        node = TextNode("All bold text", TextType.BOLD)
+        node2 = TextNode("Also all bold", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node, node2], "**", TextType.BOLD)
+        self.assertListEqual(
+            [
+                TextNode("All bold text", TextType.BOLD),
+                TextNode("Also all bold", TextType.BOLD)
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_delimiter_multiple_type_nodes(self):
+        node = TextNode("This is **bold** text", TextType.TEXT)
+        node2 = TextNode("This is all bold", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node, node2], "**", TextType.BOLD)
+        self.assertListEqual(
+            [   
+                TextNode("This is ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" text", TextType.TEXT),
+                TextNode("This is all bold", TextType.BOLD)
+            ], 
+            new_nodes
+        )
+    
     def test_split_nodes_delimiter_open_delimiter(self):
         node = TextNode("Unclosed **bold text delimiters", TextType.TEXT)
-        #new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
         self.assertRaises(ValueError, split_nodes_delimiter, [node], "**", TextType.BOLD)
 
 
