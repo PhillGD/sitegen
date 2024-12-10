@@ -158,3 +158,6 @@ class TestParentNode(unittest.TestCase):
             "ParentNode(a, Children: [LeafNode(b, bold, Props: None), LeafNode(i, italic, Props: None)], Props: {'href': 'https://www.google.com'})",
             repr(node)
         )
+
+if __name__=="__main__":
+    unittest.main()
