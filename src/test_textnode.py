@@ -206,6 +206,57 @@ class TestSplitNodes(unittest.TestCase):
         node = TextNode("Unclosed **bold text delimiters", TextType.TEXT)
         self.assertRaises(ValueError, split_nodes_delimiter, [node], "**", TextType.BOLD)
 
+class TestExtractMarkdown(unittest.TestCase):
+    def test_extract_markdown_images_single(self):
+        text = "This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)"
+        images = extract_markdown_images(text)
+        self.assertListEqual([("rick roll", "https://i.imgur.com/aKaOqIh.gif")], images)
+    
+    def test_extract_markdown_images_multi(self):
+        text = "This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif) and so is this ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        images = extract_markdown_images(text)
+        self.assertListEqual(
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg")
+            ], 
+            images
+        )
+    
+    def test_extract_markdown_images_none(self):
+        text = "No images here"
+        images = extract_markdown_images(text)
+        self.assertListEqual([], images)
+
+    def test_extract_markdown_images_none(self):
+        text = ""
+        self.assertRaises(ValueError, extract_markdown_images, text)
+
+    def test_extract_markdown_links_single(self):
+        text = "This is a link [to boot dev](https://www.boot.dev)"
+        links = extract_markdown_links(text)
+        self.assertListEqual([("to boot dev", "https://www.boot.dev")], links)
+    
+    def test_extract_markdown_links_multi(self):
+        text = "This is a link [to boot dev](https://www.boot.dev) and so is this [to youtube](https://www.youtube.com/@bootdotdev)"
+        links = extract_markdown_links(text)
+        self.assertListEqual(
+            [
+                ("to boot dev", "https://www.boot.dev"),
+                ("to youtube", "https://www.youtube.com/@bootdotdev")
+            ], 
+            links
+        )
+    
+    def test_extract_markdown_links_none(self):
+        text = "No links here"
+        links = extract_markdown_links(text)
+        self.assertListEqual([], links)
+
+    def test_extract_markdown_links_none(self):
+        text = ""
+        self.assertRaises(ValueError, extract_markdown_links, text)
+
 
 if __name__=="__main__":
     unittest.main()
