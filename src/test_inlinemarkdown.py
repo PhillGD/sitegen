@@ -324,5 +324,67 @@ class TestSplitNodesImageLink(unittest.TestCase):
             new_nodes
         )
 
+class TestTextToTextNodes(unittest.TestCase):
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            new_nodes
+        )    
+    def test_text_to_textnodes_multi_bold(self):
+        text = "This is **text** with another **bold** word and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg)"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with another ", TextType.TEXT),
+                TextNode("bold", TextType.BOLD),
+                TextNode(" word and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg")
+            ],
+            new_nodes
+        )
+
+    def test_text_to_textnodes_broken_delimiter(self):
+        text = "This is **text with an *italic* word and a [link](https://boot.dev)"
+        self.assertRaises(ValueError, text_to_textnodes, text)
+
+    def test_text_to_textnodes_bold_link(self):
+        text = "This is **text** with an *italic* word and a [**bold link**](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("**bold link**", TextType.LINK, "https://boot.dev")
+            ],
+            new_nodes
+        )
+    
+    def test_text_to_textnodes_just_text(self):
+        text = "This is just text"
+        new_nodes = text_to_textnodes(text)
+        self.assertListEqual([TextNode("This is just text", TextType.TEXT)], new_nodes)
+
+    def test_text_to_textnodes_empty(self):
+        text = ""
+        self.assertRaises(ValueError, text_to_textnodes, text)
+
 if __name__=="__main__":
     unittest.main()
