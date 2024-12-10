@@ -169,5 +169,166 @@ class TestExtractMarkdown(unittest.TestCase):
         text = ""
         self.assertRaises(ValueError, extract_markdown_links, text)
 
+class TestSplitNodesImageLink(unittest.TestCase):
+    
+    def test_split_image_link_nodes_helper_image(self):
+        node = TextNode("This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+        original_text = node.text
+        image_nodes = extract_markdown_images(original_text)
+        new_nodes = split_image_link_nodes_helper(image_nodes, original_text, TextType.IMAGE)
+        self.assertListEqual(
+            [
+                TextNode("This is an image ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif")
+            ], 
+            new_nodes
+        )
+    
+    def test_split_image_link_nodes_helper_link(self):
+        node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
+        original_text = node.text
+        link_nodes = extract_markdown_links(original_text)
+        new_nodes = split_image_link_nodes_helper(link_nodes, original_text, TextType.LINK)
+        self.assertListEqual(
+            [
+                TextNode("This is a link ", TextType.TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev")
+            ], 
+            new_nodes
+        )
+
+    def test_split_image_link_nodes_helper_invalid(self):
+        node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
+        original_text = node.text
+        link_nodes = extract_markdown_links(original_text)
+        self.assertRaises(ValueError, split_image_link_nodes_helper, link_nodes, original_text, TextType.TEXT)
+    
+    def test_split_nodes_image(self):
+        node = TextNode("This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is an image ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif")
+            ], 
+            new_nodes
+        )
+        
+    def test_split_nodes_image_start(self):
+        node = TextNode("![rick roll](https://i.imgur.com/aKaOqIh.gif) this is an image", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                TextNode(" this is an image", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+     
+    def test_split_nodes_image_middle(self):
+        node = TextNode("This ![rick roll](https://i.imgur.com/aKaOqIh.gif) is an image", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                TextNode(" is an image", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_image_multi(self):
+        node = TextNode("Image ![rick roll](https://i.imgur.com/aKaOqIh.gif) and image ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg) also", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("Image ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                TextNode(" and image ", TextType.TEXT),
+                TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" also", TextType.TEXT),
+            ], 
+            new_nodes
+        )
+
+    def test_split_nodes_link(self):
+        node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is a link ", TextType.TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev")
+            ], 
+            new_nodes
+        )
+
+    def test_split_nodes_image_multi_node(self):
+        node = TextNode("This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+        node2 = TextNode("This is an image ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)", TextType.TEXT)
+        new_nodes = split_nodes_image([node, node2])
+        self.assertListEqual(
+            [
+                TextNode("This is an image ", TextType.TEXT),
+                TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+                TextNode("This is an image ", TextType.TEXT),
+                TextNode("obi wan", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg")
+            ], 
+            new_nodes
+        )
+
+    def test_split_nodes_link_multi_node(self):
+        node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
+        node2 = TextNode("This is a link [to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node, node2])
+        self.assertListEqual(
+            [
+                TextNode("This is a link ", TextType.TEXT),
+                TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+                TextNode("This is a link ", TextType.TEXT),
+                TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev")
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_link_image_markdown(self):
+        node = TextNode("This is a link ![to boot dev](https://www.boot.dev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is a link ![to boot dev](https://www.boot.dev)", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_image_link_markdown(self):
+        node = TextNode("This is an image [rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is an image [rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_link_invalid_markdown(self):
+        node = TextNode("This is a link [to boot dev(https://www.boot.dev)", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is a link [to boot dev(https://www.boot.dev)", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+    
+    def test_split_nodes_link_no_markdown(self):
+        node = TextNode("This is a link", TextType.TEXT)
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is a link", TextType.TEXT)
+            ], 
+            new_nodes
+        )
+
 if __name__=="__main__":
     unittest.main()
