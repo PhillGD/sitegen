@@ -173,9 +173,7 @@ class TestSplitNodesImageLink(unittest.TestCase):
     
     def test_split_image_link_nodes_helper_image(self):
         node = TextNode("This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
-        original_text = node.text
-        image_nodes = extract_markdown_images(original_text)
-        new_nodes = split_image_link_nodes_helper(image_nodes, original_text, TextType.IMAGE)
+        new_nodes = split_image_link_nodes_helper([node], TextType.IMAGE)
         self.assertListEqual(
             [
                 TextNode("This is an image ", TextType.TEXT),
@@ -186,9 +184,7 @@ class TestSplitNodesImageLink(unittest.TestCase):
     
     def test_split_image_link_nodes_helper_link(self):
         node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
-        original_text = node.text
-        link_nodes = extract_markdown_links(original_text)
-        new_nodes = split_image_link_nodes_helper(link_nodes, original_text, TextType.LINK)
+        new_nodes = split_image_link_nodes_helper([node], TextType.LINK)
         self.assertListEqual(
             [
                 TextNode("This is a link ", TextType.TEXT),
@@ -199,9 +195,7 @@ class TestSplitNodesImageLink(unittest.TestCase):
 
     def test_split_image_link_nodes_helper_invalid(self):
         node = TextNode("This is a link [to boot dev](https://www.boot.dev)", TextType.TEXT)
-        original_text = node.text
-        link_nodes = extract_markdown_links(original_text)
-        self.assertRaises(ValueError, split_image_link_nodes_helper, link_nodes, original_text, TextType.TEXT)
+        self.assertRaises(ValueError, split_image_link_nodes_helper, [node], TextType.TEXT)
     
     def test_split_nodes_image(self):
         node = TextNode("This is an image ![rick roll](https://i.imgur.com/aKaOqIh.gif)", TextType.TEXT)
