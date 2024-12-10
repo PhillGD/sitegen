@@ -65,14 +65,12 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
 def extract_markdown_images(text):
     if len(text) == 0:
         raise ValueError("No text provided")
-    #images = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
     images = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return images
 
 def extract_markdown_links(text):
     if len(text) == 0:
         raise ValueError("No text provided")
-    #links = re.findall(r"\[(.*?)\]\((.*?)\)", text)
     links = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return links
     
