@@ -29,8 +29,9 @@ def block_to_block_type(block):
                     return block_type_paragraph
             return block_type_quote
         case block if re.match(r"^(\*|-)\s.*", block):
+            ulist_char = f"\\{block[0]}"
             for line in lines:
-                if not re.match(r"^(\*|-)\s.*", line):
+                if not re.match(rf"^{ulist_char}\s.*", line):
                     return block_type_paragraph
             return block_type_ulist
         case block if re.match(r"^1\.\s.*", block):

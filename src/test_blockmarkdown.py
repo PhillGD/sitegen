@@ -184,9 +184,9 @@ class TestBlockToBlockType(unittest.TestCase):
         self.assertEqual("unordered_list", block_type)
     
     def test_block_to_block_type_unordered4(self):
-        block = "- This is an unordered list\n* So is this"
+        block = "* This is an invalid unordered list\n- Because of this"
         block_type = block_to_block_type(block)
-        self.assertEqual("unordered_list", block_type)
+        self.assertEqual("paragraph", block_type)
 
     def test_block_to_block_type_unordered5(self):
         block = "-This is an invalid unordered list"
