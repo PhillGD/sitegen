@@ -4,7 +4,7 @@ from inlinemarkdown import *
 class TestSplitNodes(unittest.TestCase):
     def test_split_nodes_delimiter_text_only(self):
         node = TextNode("Text", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([node], "*", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.BOLD)
         self.assertListEqual([TextNode("Text", TextType.TEXT)], new_nodes)
 
     def test_split_nodes_delimiter_bold(self):
@@ -45,8 +45,8 @@ class TestSplitNodes(unittest.TestCase):
         )
 
     def test_split_nodes_delimiter_italic(self):
-        node = TextNode("The word *italic* is italic", TextType.TEXT)
-        new_nodes = split_nodes_delimiter([node], "*", TextType.ITALIC)
+        node = TextNode("The word _italic_ is italic", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
         self.assertListEqual(
             [
                 TextNode("The word ", TextType.TEXT),
@@ -69,9 +69,9 @@ class TestSplitNodes(unittest.TestCase):
         )
 
     def test_split_nodes_delimiter_bold_and_italic(self):
-        node = TextNode("This is **bold** and *italic* together", TextType.TEXT)
+        node = TextNode("This is **bold** and _italic_ together", TextType.TEXT)
         new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
-        new_nodes2 = split_nodes_delimiter(new_nodes, "*", TextType.ITALIC)
+        new_nodes2 = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
         self.assertListEqual(
             [
                 TextNode("This is ", TextType.TEXT),
@@ -326,7 +326,7 @@ class TestSplitNodesImageLink(unittest.TestCase):
 
 class TestTextToTextNodes(unittest.TestCase):
     def test_text_to_textnodes(self):
-        text = "This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         new_nodes = text_to_textnodes(text)
         self.assertListEqual(
             [
@@ -359,11 +359,11 @@ class TestTextToTextNodes(unittest.TestCase):
         )
 
     def test_text_to_textnodes_broken_delimiter(self):
-        text = "This is **text with an *italic* word and a [link](https://boot.dev)"
+        text = "This is **text with an _italic_ word and a [link](https://boot.dev)"
         self.assertRaises(ValueError, text_to_textnodes, text)
 
     def test_text_to_textnodes_bold_link(self):
-        text = "This is **text** with an *italic* word and a [**bold link**](https://boot.dev)"
+        text = "This is **text** with an _italic_ word and a [**bold link**](https://boot.dev)"
         new_nodes = text_to_textnodes(text)
         self.assertListEqual(
             [

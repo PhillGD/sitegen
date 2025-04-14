@@ -82,6 +82,6 @@ def text_to_textnodes(text):
                         split_nodes_image([TextNode(text, TextType.TEXT)])
                     ), "`", TextType.CODE
                 ), "**", TextType.BOLD
-            ), "*", TextType.ITALIC
+            ), "_", TextType.ITALIC
         )
     )
